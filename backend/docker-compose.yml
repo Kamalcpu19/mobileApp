@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'YourStrong@Passw0rd'
+    ports:
+      - '1433:1433'
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  api:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      DB_SERVER: sqlserver
+      DB_PORT: 1433
+      DB_NAME: workshop_advisor
+      DB_USER: sa
+      DB_PASSWORD: 'YourStrong@Passw0rd'
+      DB_ENCRYPT: 'true'
+      DB_TRUST_CERT: 'true'
+      JWT_SECRET: production-secret-change-me
+      NODE_ENV: production
+    depends_on:
+      - sqlserver
+
+volumes:
+  sqldata:
