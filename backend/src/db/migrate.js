@@ -3,20 +3,23 @@ const path = require('path');
 const db = require('./index');
 
 async function migrate() {
-  const schemaPath = path.join(__dirname, 'schema.sql');
-  let schema = fs.readFileSync(schemaPath, 'utf8');
-
-  schema = schema
-    .replace(/\r\n/g, '\n')
-    .replace(/^GO\s*$/gim, '')
-    .replace(/RAISERROR[\s\S]*?END\s*/i, '');
-
-  const statements = schema
-    .split(/;\s*\n/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
-
   try {
+    await db.ensureDatabase();
+    await db.closePool();
+
+    const schemaPath = path.join(__dirname, 'schema.sql');
+    let schema = fs.readFileSync(schemaPath, 'utf8');
+
+    schema = schema
+      .replace(/\r\n/g, '\n')
+      .replace(/^GO\s*$/gim, '')
+      .replace(/RAISERROR[\s\S]*?END\s*/i, '');
+
+    const statements = schema
+      .split(/;\s*\n/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && !s.startsWith('--'));
+
     for (const statement of statements) {
       await db.query(`${statement};`);
     }

@@ -43,7 +43,7 @@ CREATE TABLE workshops (
 
 CREATE TABLE users (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
     username NVARCHAR(100) NOT NULL UNIQUE,
     password_hash NVARCHAR(255) NOT NULL,
     full_name NVARCHAR(255) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE users (
 
 CREATE TABLE automation_settings (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER UNIQUE REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER UNIQUE REFERENCES workshops(id) ON DELETE NO ACTION,
     vehicle_identification_enabled BIT DEFAULT 1,
     complaints_ai_enabled BIT DEFAULT 1,
     ai_quote_agent_enabled BIT DEFAULT 1,
@@ -67,7 +67,7 @@ CREATE TABLE automation_settings (
 
 CREATE TABLE customers (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
     name NVARCHAR(255) NOT NULL,
     mobile NVARCHAR(20) NOT NULL,
     email NVARCHAR(255),
@@ -77,8 +77,8 @@ CREATE TABLE customers (
 
 CREATE TABLE vehicles (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
-    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE SET NULL,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
+    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE NO ACTION,
     registration_number NVARCHAR(20) NOT NULL,
     make NVARCHAR(100),
     model NVARCHAR(100),
@@ -96,7 +96,7 @@ CREATE TABLE vehicles (
 
 CREATE TABLE vehicle_images (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE CASCADE,
+    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE NO ACTION,
     image_type NVARCHAR(50) NOT NULL,
     image_url NVARCHAR(MAX) NOT NULL,
     created_at DATETIME2 DEFAULT GETUTCDATE()
@@ -104,10 +104,10 @@ CREATE TABLE vehicle_images (
 
 CREATE TABLE appointments (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
-    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE SET NULL,
-    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE SET NULL,
-    advisor_id UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE SET NULL,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
+    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE NO ACTION,
+    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE NO ACTION,
+    advisor_id UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE NO ACTION,
     category NVARCHAR(20) NOT NULL DEFAULT 'AM',
     appointment_date DATE NOT NULL,
     appointment_time TIME,
@@ -120,12 +120,12 @@ CREATE TABLE appointments (
 
 CREATE TABLE repair_orders (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
     ro_number NVARCHAR(50) NOT NULL UNIQUE,
-    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE SET NULL,
-    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE SET NULL,
-    advisor_id UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE SET NULL,
-    appointment_id UNIQUEIDENTIFIER REFERENCES appointments(id) ON DELETE SET NULL,
+    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE NO ACTION,
+    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE NO ACTION,
+    advisor_id UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE NO ACTION,
+    appointment_id UNIQUEIDENTIFIER REFERENCES appointments(id) ON DELETE NO ACTION,
     stage NVARCHAR(50) DEFAULT 'inspection',
     vehicle_detection_status NVARCHAR(20) DEFAULT 'not_detected',
     odometer_in INT,
@@ -138,7 +138,7 @@ CREATE TABLE repair_orders (
 
 CREATE TABLE inspection_templates (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
     category NVARCHAR(100) NOT NULL,
     item_name NVARCHAR(255) NOT NULL,
     inspection_type NVARCHAR(50) DEFAULT 'pre',
@@ -147,8 +147,8 @@ CREATE TABLE inspection_templates (
 
 CREATE TABLE inspection_items (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
-    template_id UNIQUEIDENTIFIER REFERENCES inspection_templates(id) ON DELETE SET NULL,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
+    template_id UNIQUEIDENTIFIER REFERENCES inspection_templates(id) ON DELETE NO ACTION,
     category NVARCHAR(100),
     item_name NVARCHAR(255) NOT NULL,
     status NVARCHAR(20) DEFAULT 'pending',
@@ -161,7 +161,7 @@ CREATE TABLE inspection_items (
 
 CREATE TABLE complaints (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     description NVARCHAR(MAX) NOT NULL,
     source NVARCHAR(20) DEFAULT 'manual',
     status NVARCHAR(50) DEFAULT 'open',
@@ -171,7 +171,7 @@ CREATE TABLE complaints (
 
 CREATE TABLE ai_recommendations (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     recommendation_type NVARCHAR(50) NOT NULL,
     title NVARCHAR(255) NOT NULL,
     description NVARCHAR(MAX),
@@ -181,7 +181,7 @@ CREATE TABLE ai_recommendations (
 
 CREATE TABLE job_cards (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER UNIQUE REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER UNIQUE REFERENCES repair_orders(id) ON DELETE NO ACTION,
     job_card_number NVARCHAR(50) NOT NULL UNIQUE,
     status NVARCHAR(50) DEFAULT 'active',
     created_at DATETIME2 DEFAULT GETUTCDATE(),
@@ -190,7 +190,7 @@ CREATE TABLE job_cards (
 
 CREATE TABLE estimates (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     estimate_number NVARCHAR(50) NOT NULL UNIQUE,
     status NVARCHAR(50) DEFAULT 'draft',
     subtotal DECIMAL(12,2) DEFAULT 0,
@@ -204,7 +204,7 @@ CREATE TABLE estimates (
 
 CREATE TABLE estimate_line_items (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    estimate_id UNIQUEIDENTIFIER REFERENCES estimates(id) ON DELETE CASCADE,
+    estimate_id UNIQUEIDENTIFIER REFERENCES estimates(id) ON DELETE NO ACTION,
     item_type NVARCHAR(20) NOT NULL,
     name NVARCHAR(255) NOT NULL,
     description NVARCHAR(MAX),
@@ -219,7 +219,7 @@ CREATE TABLE estimate_line_items (
 
 CREATE TABLE spares (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     part_name NVARCHAR(255) NOT NULL,
     part_number NVARCHAR(100),
     quantity DECIMAL(10,2) DEFAULT 1,
@@ -230,8 +230,8 @@ CREATE TABLE spares (
 
 CREATE TABLE invoices (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
-    estimate_id UNIQUEIDENTIFIER REFERENCES estimates(id) ON DELETE SET NULL,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
+    estimate_id UNIQUEIDENTIFIER REFERENCES estimates(id) ON DELETE NO ACTION,
     invoice_number NVARCHAR(50) NOT NULL UNIQUE,
     subtotal DECIMAL(12,2) DEFAULT 0,
     tax_amount DECIMAL(12,2) DEFAULT 0,
@@ -248,7 +248,7 @@ CREATE TABLE invoices (
 
 CREATE TABLE payments (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    invoice_id UNIQUEIDENTIFIER REFERENCES invoices(id) ON DELETE CASCADE,
+    invoice_id UNIQUEIDENTIFIER REFERENCES invoices(id) ON DELETE NO ACTION,
     amount DECIMAL(12,2) NOT NULL,
     payment_method NVARCHAR(50),
     transaction_id NVARCHAR(255),
@@ -259,9 +259,9 @@ CREATE TABLE payments (
 
 CREATE TABLE customer_messages (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
-    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE CASCADE,
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE SET NULL,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
+    customer_id UNIQUEIDENTIFIER REFERENCES customers(id) ON DELETE NO ACTION,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     message NVARCHAR(MAX) NOT NULL,
     is_read BIT DEFAULT 0,
     created_at DATETIME2 DEFAULT GETUTCDATE()
@@ -269,8 +269,8 @@ CREATE TABLE customer_messages (
 
 CREATE TABLE service_history (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE CASCADE,
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE SET NULL,
+    vehicle_id UNIQUEIDENTIFIER REFERENCES vehicles(id) ON DELETE NO ACTION,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     service_date DATE NOT NULL,
     odometer INT,
     description NVARCHAR(MAX),
@@ -280,17 +280,17 @@ CREATE TABLE service_history (
 
 CREATE TABLE stage_history (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE CASCADE,
+    repair_order_id UNIQUEIDENTIFIER REFERENCES repair_orders(id) ON DELETE NO ACTION,
     from_stage NVARCHAR(50),
     to_stage NVARCHAR(50) NOT NULL,
-    changed_by UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE SET NULL,
+    changed_by UNIQUEIDENTIFIER REFERENCES users(id) ON DELETE NO ACTION,
     notes NVARCHAR(MAX),
     created_at DATETIME2 DEFAULT GETUTCDATE()
 );
 
 CREATE TABLE inventory (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE CASCADE,
+    workshop_id UNIQUEIDENTIFIER REFERENCES workshops(id) ON DELETE NO ACTION,
     part_number NVARCHAR(100),
     name NVARCHAR(255) NOT NULL,
     description NVARCHAR(MAX),
